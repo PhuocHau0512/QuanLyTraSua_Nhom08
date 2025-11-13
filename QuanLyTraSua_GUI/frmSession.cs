@@ -1,13 +1,13 @@
-﻿using QuanLyTraSua.QuanLyTraSua_BLL;
+﻿using QuanLyTraSua.QuanLyTraSua_BLL; // Sử dụng BLL
 using System;
 using System.Data;
 using System.Windows.Forms;
 
 namespace QuanLyTraSua.QuanLyTraSua_GUI
 {
+    // Form quản lý phiên kết nối người dùng
     public partial class frmSession : Form
     {
-        // Khởi tạo lớp BLL
         private Admin_BLL adminBLL = new Admin_BLL();
 
         public frmSession()
@@ -15,16 +15,19 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             InitializeComponent();
         }
 
+        // Xử lý sự kiện Load form
         private void frmSession_Load(object sender, EventArgs e)
         {
             LoadData();
         }
 
+        // Xử lý sự kiện nút Làm Mới
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
             LoadData();
         }
 
+        // Hàm tải dữ liệu phiên kết nối
         private void LoadData()
         {
             try
@@ -38,6 +41,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Xử lý sự kiện nút Ngắt Phiên
         private void btnKillSession_Click(object sender, EventArgs e)
         {
             if (dgvSessions.SelectedRows.Count == 0)

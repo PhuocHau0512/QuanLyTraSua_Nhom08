@@ -1,4 +1,4 @@
-﻿using QuanLyTraSua.QuanLyTraSua_BLL;
+﻿using QuanLyTraSua.QuanLyTraSua_BLL; // SỬ DỤNG NAMESPACE BLL ĐỂ TRUY CẬP ADMIN_BLL
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,22 +11,25 @@ using System.Windows.Forms;
 
 namespace QuanLyTraSua.QuanLyTraSua_GUI
 {
+    // Form phân quyền cho người dùng Oracle
     public partial class frmPhanQuyen : Form
     {
         private Admin_BLL adminBLL = new Admin_BLL();
-        private List<string> allRoles = new List<string>();
+        private List<string> allRoles = new List<string>(); // Lưu tất cả các role từ Oracle
 
         public frmPhanQuyen()
         {
             InitializeComponent();
         }
 
+        // Xử lý sự kiện Load form
         private void frmPhanQuyen_Load(object sender, EventArgs e)
         {
             LoadAllUsers();
             LoadAllRoles();
         }
 
+        // Tải tất cả user từ Oracle vào combobox
         private void LoadAllUsers()
         {
             DataTable dt = adminBLL.GetOracleUsers();
@@ -38,6 +41,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Tải tất cả role từ Oracle vào danh sách allRoles
         private void LoadAllRoles()
         {
             DataTable dt = adminBLL.GetOracleRoles();
@@ -50,6 +54,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Xử lý sự kiện khi chọn user khác trong combobox
         private void cmbUsers_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (cmbUsers.SelectedValue == null) return;
@@ -58,9 +63,10 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             LoadRolesForUser(selectedUser);
         }
 
+        // Tải danh sách role đã cấp và chưa cấp cho user
         private void LoadRolesForUser(string username)
         {
-            // Lấy danh sách role đã cấp
+            // Lấy danh sách role đã cấp từ BLL
             DataTable dtGranted = adminBLL.GetRolesForUser(username);
             List<string> grantedRoles = new List<string>();
             if (dtGranted != null)
@@ -79,6 +85,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             lstChuaCap.DataSource = notGrantedRoles;
         }
 
+        // Xử lý sự kiện cấp role cho user
         private void btnGrant_Click(object sender, EventArgs e)
         {
             if (cmbUsers.SelectedValue == null || lstChuaCap.SelectedItem == null)
@@ -87,6 +94,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
                 return;
             }
 
+            // Lấy user và role được chọn
             string user = cmbUsers.SelectedValue.ToString();
             string role = lstChuaCap.SelectedItem.ToString();
 
@@ -101,6 +109,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Xử lý sự kiện thu hồi role từ user
         private void btnRevoke_Click(object sender, EventArgs e)
         {
             if (cmbUsers.SelectedValue == null || lstDaCap.SelectedItem == null)
@@ -109,6 +118,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
                 return;
             }
 
+            // Lấy user và role được chọn
             string user = cmbUsers.SelectedValue.ToString();
             string role = lstDaCap.SelectedItem.ToString();
 

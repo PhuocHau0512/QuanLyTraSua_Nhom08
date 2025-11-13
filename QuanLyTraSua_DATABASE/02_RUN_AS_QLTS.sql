@@ -2,7 +2,6 @@
 -- TEP 2: 02_RUN_AS_QLTS.sql
 -- CHAY VOI QUYEN: QLTS
 --
--- ***** LÝU ? *****
 -- BAN PHAI KET NOI VOI USER QLTS
 -- VA DAM BAO KET NOI CUA BAN DANG NHAP VAO PDB 'PDBORCL'
 ================================================================================

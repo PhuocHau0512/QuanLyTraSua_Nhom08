@@ -1,11 +1,11 @@
-﻿// Tập tin: QuanLyTraSua_GUI/frmSanPham.cs
-using QuanLyTraSua.QuanLyTraSua_BLL;
+﻿using QuanLyTraSua.QuanLyTraSua_BLL; // Sử dụng BLL
 using System;
 using System.Data;
 using System.Windows.Forms;
 
 namespace QuanLyTraSua.QuanLyTraSua_GUI
 {
+    // Form Quản lý Sản phẩm
     public partial class frmSanPham : Form
     {
         private SanPham_BLL sanPhamBLL = new SanPham_BLL();
@@ -15,11 +15,13 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             InitializeComponent();
         }
 
+        // Load dữ liệu khi form được tải
         private void frmSanPham_Load(object sender, EventArgs e)
         {
             LoadData();
         }
 
+        // Hàm tải dữ liệu sản phẩm
         private void LoadData()
         {
             try
@@ -36,12 +38,13 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Hàm xóa trắng các ô nhập liệu
         private void ClearInputs()
         {
             txtMaSP.Text = "";
             txtTenSP.Text = "";
             txtDonGia.Text = "0";
-            numSoLuongTon.Value = 0; // <-- THEM MOI
+            numSoLuongTon.Value = 0; 
             cmbLoaiSP.SelectedIndex = 0; // Mac dinh la TraSua
             txtMaSP.Enabled = true;
             btnThem.Enabled = true;
@@ -49,12 +52,14 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             btnXoa.Enabled = false;
         }
 
+        // Xử lý sự kiện nút Làm Mới
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
             ClearInputs();
             LoadData();
         }
 
+        // Xử lý sự kiện khi chọn một dòng trong DataGridView
         private void dgvSanPham_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvSanPham.SelectedRows.Count == 1)
@@ -67,7 +72,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
                 cmbLoaiSP.SelectedItem = row.Cells["LoaiSP"].Value.ToString();
                 numSoLuongTon.Value = Convert.ToDecimal(row.Cells["SoLuongTon"].Value); // <-- THEM MOI
 
-                // Khoa chuc nang
+                // Dieu chinh trang thai nut
                 txtMaSP.Enabled = false;
                 btnThem.Enabled = false;
                 btnSua.Enabled = true;
@@ -75,6 +80,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        //  Xử lý sự kiện nút Thêm
         private void btnThem_Click(object sender, EventArgs e)
         {
             string ketQua = sanPhamBLL.ThemSanPham(
@@ -82,7 +88,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
                 txtTenSP.Text,
                 txtDonGia.Text,
                 cmbLoaiSP.SelectedItem.ToString(),
-                numSoLuongTon.Value.ToString() // <-- THEM MOI
+                numSoLuongTon.Value.ToString() 
             );
 
             MessageBox.Show(ketQua, "Thông báo");
@@ -92,6 +98,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Xử lý sự kiện nút Sửa
         private void btnSua_Click(object sender, EventArgs e)
         {
             string ketQua = sanPhamBLL.CapNhatSanPham(
@@ -99,7 +106,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
                 txtTenSP.Text,
                 txtDonGia.Text,
                 cmbLoaiSP.SelectedItem.ToString(),
-                numSoLuongTon.Value.ToString() // <-- THEM MOI
+                numSoLuongTon.Value.ToString() //
             );
 
             MessageBox.Show(ketQua, "Thông báo");
@@ -109,6 +116,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Xử lý sự kiện nút Xóa
         private void btnXoa_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Bạn có chắc muốn xóa sản phẩm này?", "Xác nhận", MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)

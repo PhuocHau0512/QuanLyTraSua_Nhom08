@@ -4,35 +4,43 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Client; // Thư viện Oracle
 using System.Data;
 
 namespace QuanLyTraSua.QuanLyTraSua_DAO
 {
-    public class HoaDon_DAO
+    // DAO: Data Access Object - Truy cập dữ liệu
+    public class HoaDon_DAO // DAO cho Quản lý Hóa Đơn
     {
-        // ĐÃ SỬA: Thêm cột ChuKySo
+        // Lấy tất cả hóa đơn
         public DataTable GetAllHoaDon()
         {
             OracleConnection conn = DataProvider.MoKetNoi();
             if (conn == null) return null;
 
-            // Sửa câu query: Thêm cột ChuKySo
-            string query = "SELECT MaHD, NgayLap, TongTien, MaNV, ChuKySo FROM HOADON ORDER BY NgayLap DESC";
+            // Truy vấn lấy tất cả hóa đơn, sắp xếp theo Ngày Lập giảm dần
+            string query = "SELECT MaHD, NgayLap, TongTien, MaNV, RAWTOHEX(ChuKySo) AS ChuKySo " +
+                "FROM HOADON " +
+                "ORDER BY NgayLap DESC";
 
             DataTable dt = DataProvider.ThucThiTruyVan(query, conn);
+
             DataProvider.DongKetNoi(conn);
+
             return dt;
         }
 
-        // HÀM MỚI (Bước 6)
+        // Ký số hóa đơn
         public string KySoHoaDon(string maHD)
         {
             OracleConnection conn = DataProvider.MoKetNoi();
+
             if (conn == null) return "Lỗi kết nối CSDL";
+
             string ketQua = "Lỗi không xác định";
+
             try
-            {
+            { // Gọi thủ tục lưu trữ để ký số hóa đơn
                 using (OracleCommand cmd = new OracleCommand("SP_KySoHoaDon", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -43,19 +51,28 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
                     ketQua = p_ketQua.Value.ToString();
                 }
             }
-            catch (Exception ex) { ketQua = "Lỗi C#: " + ex.Message; }
-            finally { DataProvider.DongKetNoi(conn); }
+            catch (Exception ex) 
+            { 
+                ketQua = "Lỗi C#: " + ex.Message; 
+            }
+            finally 
+            { 
+                DataProvider.DongKetNoi(conn); 
+            }
             return ketQua;
         }
 
-        // HÀM MỚI (Bước 6)
+        // Xác thực hóa đơn
         public string XacThucHoaDon(string maHD)
         {
             OracleConnection conn = DataProvider.MoKetNoi();
+
             if (conn == null) return "Lỗi kết nối CSDL";
+
             string ketQua = "Lỗi không xác định";
+
             try
-            {
+            { // Gọi thủ tục lưu trữ để xác thực hóa đơn
                 using (OracleCommand cmd = new OracleCommand("SP_XacThucHoaDon", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -66,42 +83,52 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
                     ketQua = p_ketQua.Value.ToString();
                 }
             }
-            catch (Exception ex) { ketQua = "Lỗi C#: " + ex.Message; }
-            finally { DataProvider.DongKetNoi(conn); }
+            catch (Exception ex) 
+            { 
+                ketQua = "Lỗi C#: " + ex.Message; 
+            }
+            finally 
+            { 
+                DataProvider.DongKetNoi(conn); 
+            }
             return ketQua;
         }
 
-        // ** THAY THẾ HOÀN TOÀN HÀM NÀY (Nghiep Vu Kho) **
-        // Tra ve string de thong bao loi (vi du: het hang)
+        // Tạo hóa đơn mới với giao dịch
         public string TaoHoaDon(string maHD, double tongTien, string maNV, DataTable dtGioHang)
         {
             OracleConnection conn = DataProvider.MoKetNoi();
+
             if (conn == null) return "Lỗi kết nối CSDL";
 
-            // Su dung Transaction de dam bao an toan
+            // Bắt đầu giao dịch
             OracleTransaction tran = conn.BeginTransaction(IsolationLevel.ReadCommitted);
             try
             {
                 // BƯỚC 1: KIỂM TRA KHO (Khóa các dòng sản phẩm lại)
-                string queryCheckKho = "SELECT SoLuongTon FROM SANPHAM WHERE MaSP = :MaSP FOR UPDATE";
+                string queryCheckKho = "SELECT SoLuongTon " +
+                    "FROM SANPHAM " +
+                    "WHERE MaSP = :MaSP FOR UPDATE";
+                // Duyệt giỏ hàng để kiểm tra tồn kho
                 foreach (DataRow row in dtGioHang.Rows)
                 {
-                    string maSP = row["MaSP"].ToString();
-                    int soLuongMua = Convert.ToInt32(row["SoLuong"]);
+                    string maSP = row["MaSP"].ToString(); // Mã sản phẩm
+                    int soLuongMua = Convert.ToInt32(row["SoLuong"]); // Số lượng mua
 
+                    // Kiểm tra tồn kho
                     using (OracleCommand cmdCheck = new OracleCommand(queryCheckKho, conn))
                     {
-                        cmdCheck.Transaction = tran;
-                        cmdCheck.Parameters.Add(new OracleParameter("MaSP", maSP));
+                        cmdCheck.Transaction = tran; // Gán transaction 
+                        cmdCheck.Parameters.Add(new OracleParameter("MaSP", maSP)); // Tham số MaSP
 
-                        object result = cmdCheck.ExecuteScalar();
+                        object result = cmdCheck.ExecuteScalar(); // Lấy số lượng tồn kho
                         if (result == null || result == DBNull.Value)
                         {
                             tran.Rollback();
                             return $"Lỗi: Sản phẩm '{maSP}' không tồn tại.";
                         }
 
-                        int soLuongTon = Convert.ToInt32(result);
+                        int soLuongTon = Convert.ToInt32(result); // Số lượng tồn kho
 
                         if (soLuongMua > soLuongTon)
                         {
@@ -124,11 +151,14 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
 
                 // BƯỚC 3: Thêm vào CTHD và Cập nhật kho
                 string queryCTHD = "INSERT INTO CHITIETHOADON (MaHD, MaSP, SoLuong, ThanhTien) VALUES (:MaHD, :MaSP, :SoLuong, :ThanhTien)";
-                string queryUpdateKho = "UPDATE SANPHAM SET SoLuongTon = SoLuongTon - :SoLuongMua WHERE MaSP = :MaSP";
+                string queryUpdateKho = "UPDATE SANPHAM " +
+                    "SET SoLuongTon = SoLuongTon - :SoLuongMua " +
+                    "WHERE MaSP = :MaSP";
 
+                // Duyệt giỏ hàng để thêm chi tiết hóa đơn và cập nhật kho
                 foreach (DataRow row in dtGioHang.Rows)
                 {
-                    // Thêm CTHD
+                    // Thêm vào CHITIETHOADON
                     using (OracleCommand cmdCTHD = new OracleCommand(queryCTHD, conn))
                     {
                         cmdCTHD.Transaction = tran; // Gan transaction
@@ -165,11 +195,12 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
             }
         }
 
-        // *** NGHIỆP VỤ MỚI ***
+        // Lấy chi tiết hóa đơn theo Mã Hóa Đơn
         public DataTable GetChiTietHoaDon(string maHD)
         {
             OracleConnection conn = DataProvider.MoKetNoi();
             if (conn == null) return null;
+
             // Lấy MaSP, TenSP (từ bảng SANPHAM), SoLuong, ThanhTien
             string query = @"
                 SELECT CT.MaSP, SP.TenSP, CT.SoLuong, CT.ThanhTien
@@ -189,8 +220,14 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
                     }
                 }
             }
-            catch (Exception) { dt = null; }
-            finally { DataProvider.DongKetNoi(conn); }
+            catch (Exception) 
+            { 
+                dt = null; 
+            }
+            finally 
+            { 
+                DataProvider.DongKetNoi(conn); 
+            }
             return dt;
         }
     }

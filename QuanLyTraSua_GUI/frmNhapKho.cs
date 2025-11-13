@@ -1,11 +1,11 @@
-﻿// Tập tin: QuanLyTraSua_GUI/frmNhapKho.cs
-using QuanLyTraSua.QuanLyTraSua_BLL;
+﻿using QuanLyTraSua.QuanLyTraSua_BLL; // SỬ DỤNG NAMESPACE BLL ĐỂ TRUY CẬP SANPHAM_BLL
 using System;
 using System.Data;
 using System.Windows.Forms;
 
 namespace QuanLyTraSua.QuanLyTraSua_GUI
 {
+    // Form Nhập kho cho Admin (nhóm KHO)
     public partial class frmNhapKho : Form
     {
         private SanPham_BLL sanPhamBLL = new SanPham_BLL();
@@ -16,18 +16,20 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             InitializeComponent();
         }
 
+        // Xử lý sự kiện Load form
         private void frmNhapKho_Load(object sender, EventArgs e)
         {
             LoadData();
         }
 
+        //  Tải dữ liệu sản phẩm vào DataGridView
         private void LoadData()
         {
             try
             {
-                // Admin (nhóm KHO) sẽ thấy tất cả sản phẩm
+                // Lấy tất cả sản phẩm
                 dgvSanPham.DataSource = sanPhamBLL.GetAllSanPham();
-                // Tùy chỉnh cột
+                // Định dạng cột
                 if (dgvSanPham.Columns.Contains("SoLuongTon"))
                 {
                     dgvSanPham.Columns["SoLuongTon"].HeaderText = "Tồn Kho Hiện Tại";
@@ -39,6 +41,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        //  Xử lý sự kiện khi chọn một dòng trong DataGridView
         private void dgvSanPham_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvSanPham.SelectedRows.Count == 1)
@@ -50,6 +53,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Xử lý sự kiện khi nhấn nút Nhập kho
         private void btnNhapKho_Click(object sender, EventArgs e)
         {
             if (string.IsNullOrEmpty(selectedMaSP))

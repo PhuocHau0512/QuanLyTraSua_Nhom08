@@ -7,12 +7,13 @@ using System.Windows.Forms;
 
 namespace QuanLyTraSua.QuanLyTraSua_GUI
 {
+    // Form Bán Hàng
     public partial class frmBanHang : Form
     {
-        private SanPham_BLL sanPhamBLL = new SanPham_BLL();
-        private HoaDon_BLL hoaDonBLL = new HoaDon_BLL();
+        private SanPham_BLL sanPhamBLL = new SanPham_BLL(); // BLL SanPham
+        private HoaDon_BLL hoaDonBLL = new HoaDon_BLL(); // BLL HoaDon
 
-        // Tao cau truc Gio hang
+        // Gio hang hien tai
         private DataTable dtGioHang = new DataTable();
 
         public frmBanHang()
@@ -21,6 +22,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             KhoiTaoGioHang();
         }
 
+        // Khoi tao cau truc gio hang
         private void KhoiTaoGioHang()
         {
             dtGioHang.Columns.Add("MaSP", typeof(string));
@@ -33,12 +35,13 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             dgvGioHang.DataSource = dtGioHang;
         }
 
+        // Load danh sach san pham
         private void frmBanHang_Load(object sender, EventArgs e)
         {
             // Tai danh sach san pham (da duoc OLS loc)
-            dgvSanPham.DataSource = sanPhamBLL.GetActiveSanPham();
+            dgvSanPham.DataSource = sanPhamBLL.GetActiveSanPham(Session.Quyen);
 
-            // ** CAP NHAT: Tuy chinh cot **
+            // Dinh dang DataGridView
             if (dgvSanPham.Columns.Contains("SoLuongTon"))
             {
                 dgvSanPham.Columns["SoLuongTon"].HeaderText = "Tồn Kho";
@@ -57,7 +60,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
-        // ** CAP NHAT: Kiem tra ton kho **
+        // Xu ly su kien them san pham vao gio hang
         private void btnThem_Click(object sender, EventArgs e)
         {
             if (dgvSanPham.SelectedRows.Count == 0)
@@ -68,10 +71,10 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
 
             // Lay thong tin san pham duoc chon
             DataRowView selectedRow = (DataRowView)dgvSanPham.SelectedRows[0].DataBoundItem;
-            string maSP = selectedRow["MaSP"].ToString();
-            string tenSP = selectedRow["TenSP"].ToString();
-            double donGia = Convert.ToDouble(selectedRow["DonGia"]);
-            int soLuongTon = Convert.ToInt32(selectedRow["SoLuongTon"]);
+            string maSP = selectedRow["MASP"].ToString(); 
+            string tenSP = selectedRow["TENSP"].ToString(); 
+            double donGia = Convert.ToDouble(selectedRow["DONGIA"]); 
+            int soLuongTon = Convert.ToInt32(selectedRow["SOLUONGTON"]); 
             int soLuong = (int)numSoLuong.Value;
 
             // KIỂM TRA SƠ BỘ (Kiểm tra cuối cùng là ở hàm ThanhToan)
@@ -110,6 +113,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             CapNhatTongTien();
         }
 
+        // Xu ly su kien xoa san pham khoi gio hang
         private void btnXoa_Click(object sender, EventArgs e)
         {
             if (dgvGioHang.SelectedRows.Count == 0)
@@ -124,6 +128,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             CapNhatTongTien();
         }
 
+        // Cap nhat tong tien trong gio hang
         private void CapNhatTongTien()
         {
             // Tinh tong cot "ThanhTien"
@@ -135,12 +140,12 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             txtTongTien.Text = tongTien.ToString("N0"); // Dinh dang 100,000
         }
 
-        // ** CAP NHAT: Xu ly ket qua string tu BLL **
+        // Xu ly su kien thanh toan
         private void btnThanhToan_Click(object sender, EventArgs e)
         {
             // Tai lai danh sach san pham (de lay SoLuongTon moi nhat)
             // phong truong hop nguoi khac vua mua
-            dgvSanPham.DataSource = sanPhamBLL.GetActiveSanPham();
+            dgvSanPham.DataSource = sanPhamBLL.GetActiveSanPham(Session.Quyen);
 
             // Goi BLL de thanh toan
             string ketQua = hoaDonBLL.TaoHoaDon(dtGioHang);
@@ -153,7 +158,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
                 dtGioHang.Clear();
                 CapNhatTongTien();
                 // Tai lai DS san pham de thay kho bi tru
-                dgvSanPham.DataSource = sanPhamBLL.GetActiveSanPham();
+                dgvSanPham.DataSource = sanPhamBLL.GetActiveSanPham(Session.Quyen);
             }
             // Neu that bai (het hang), chi hien thi thong bao, khong xoa gio hang
         }

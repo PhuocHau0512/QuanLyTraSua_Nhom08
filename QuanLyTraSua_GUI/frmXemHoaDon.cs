@@ -1,4 +1,4 @@
-﻿using QuanLyTraSua.QuanLyTraSua_BLL;
+﻿using QuanLyTraSua.QuanLyTraSua_BLL; // Sử dụng BLL
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,6 +11,7 @@ using System.Windows.Forms;
 
 namespace QuanLyTraSua.QuanLyTraSua_GUI
 {
+    // Form xem hóa đơn và ký số, xác thực
     public partial class frmXemHoaDon : Form
     {
         private HoaDon_BLL hoaDonBLL = new HoaDon_BLL();
@@ -18,25 +19,26 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
         public frmXemHoaDon()
         {
             InitializeComponent();
-            // Gan su kien SelectionChanged cho dgvHoaDon
+            // Đăng ký sự kiện SelectionChanged cho dgvHoaDon
             this.dgvHoaDon.SelectionChanged += new System.EventHandler(this.dgvHoaDon_SelectionChanged);
         }
 
+        // Tải dữ liệu hóa đơn
         private void btnTaiDuLieu_Click(object sender, EventArgs e)
         {
             try
             {
-                // Gọi hàm GetAllHoaDon (đã được cập nhật ở DAO)
+                // Gọi BLL -> DAO -> SELECT *
                 dgvHoaDon.DataSource = hoaDonBLL.GetAllHoaDon();
 
-                // Tinh chỉnh hiển thị cột ChuKySo
-                if (dgvHoaDon.Columns.Contains("ChuKySo"))
+                // Điều chỉnh độ rộng cột CHUKYSO nếu tồn tại
+                if (dgvHoaDon.Columns.Contains("CHUKYSO"))
                 {
-                    dgvHoaDon.Columns["ChuKySo"].FillWeight = 50;
+                    dgvHoaDon.Columns["CHUKYSO"].FillWeight = 50;
                 }
 
                 this.Text = $"Xem hóa đơn (User: {Session.MaNV} - Quyền: {Session.Quyen})";
-                // Xoa du lieu cu cua bang Chi Tiet
+                // Xóa bảng chi tiết hóa đơn
                 dgvChiTietHoaDon.DataSource = null;
             }
             catch (Exception ex)
@@ -45,12 +47,13 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Khi form được tải
         private void frmXemHoaDon_Load(object sender, EventArgs e)
         {
             btnTaiDuLieu_Click(sender, e); // Tải luôn khi mở
         }
 
-        // 
+        // Ký số hóa đơn
         private void btnKySo_Click(object sender, EventArgs e)
         {
             if (dgvHoaDon.SelectedRows.Count == 0)
@@ -59,7 +62,8 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
                 return;
             }
 
-            string maHD = dgvHoaDon.SelectedRows[0].Cells["MaHD"].Value.ToString();
+            // Lấy mã hóa đơn từ dòng được chọn
+            string maHD = dgvHoaDon.SelectedRows[0].Cells["MAHD"].Value.ToString();
             string ketQua = hoaDonBLL.KySoHoaDon(maHD);
             MessageBox.Show(ketQua, "Kết quả Ký số");
 
@@ -67,7 +71,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             btnTaiDuLieu_Click(sender, e);
         }
 
-        // 
+        // Xác thực hóa đơn
         private void btnXacThuc_Click(object sender, EventArgs e)
         {
             if (dgvHoaDon.SelectedRows.Count == 0)
@@ -76,14 +80,15 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
                 return;
             }
 
+            // Lấy mã hóa đơn từ dòng được chọn
             string maHD = dgvHoaDon.SelectedRows[0].Cells["MaHD"].Value.ToString();
             string ketQua = hoaDonBLL.XacThucHoaDon(maHD);
 
-            if (ketQua.Contains("HỢP LỆ"))
+            if (ketQua.Contains("HOP LE"))
             {
                 MessageBox.Show(ketQua, "Kết quả Xác thực", MessageBoxButtons.OK, MessageBoxIcon.Information);
             }
-            else if (ketQua.Contains("CHƯA ĐƯỢC KÝ SỐ"))
+            else if (ketQua.Contains("CHUA DUOC KY SO"))
             {
                 MessageBox.Show(ketQua, "Kết quả Xác thực", MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
@@ -92,14 +97,16 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
                 MessageBox.Show(ketQua, "Kết quả Xác thực", MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        // Xử lý sự kiện khi chọn dòng trong dgvHoaDon thay đổi
         private void dgvHoaDon_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvHoaDon.SelectedRows.Count == 1)
             {
                 try
                 {
-                    // 1. Lay MaHD tu dong duoc chon
-                    string maHD = dgvHoaDon.SelectedRows[0].Cells["MaHD"].Value.ToString();
+                    // 1. Lay ma hoa don tu dong chon
+                    string maHD = dgvHoaDon.SelectedRows[0].Cells["MAHD"].Value.ToString();
 
                     // 2. Goi BLL/DAO de lay chi tiet
                     DataTable dtChiTiet = hoaDonBLL.GetChiTietHoaDon(maHD);

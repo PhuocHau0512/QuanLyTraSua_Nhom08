@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Data;
-using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Client; // Thư viện Oracle
 
 namespace QuanLyTraSua.QuanLyTraSua_DAO
 {
     public class NhanVien_DAO
     {
-        // (Bước 9): Thêm giải mã Hybrid
+        // DAO cho Quản lý Nhân Viên
         public DataTable GetAllNhanVien()
         {
             OracleConnection conn = DataProvider.MoKetNoi();
@@ -25,7 +25,7 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
             return dt;
         }
 
-        // (Bước 9): Thêm diaChi_plain
+        // Thêm nhân viên mới
         public bool ThemNhanVien(string maNV, string tenNV, string sdt_plain, string diaChi_plain, DateTime ngayVaoLam)
         {
             OracleConnection conn = DataProvider.MoKetNoi();
@@ -33,29 +33,38 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
             bool result = false;
             try
             {
+                // Gọi thủ tục lưu trữ để thêm nhân viên
                 using (OracleCommand cmd = new OracleCommand("SP_NhanVien_Insert", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
                     cmd.Parameters.Add(new OracleParameter("p_MaNV", maNV));
                     cmd.Parameters.Add(new OracleParameter("p_TenNV", tenNV));
                     cmd.Parameters.Add(new OracleParameter("p_SDT_Plain", sdt_plain));
-                    cmd.Parameters.Add(new OracleParameter("p_DiaChi_Plain", diaChi_plain)); // Sửa tên tham số
+                    cmd.Parameters.Add(new OracleParameter("p_DiaChi_Plain", diaChi_plain));
                     cmd.Parameters.Add(new OracleParameter("p_NgayVaoLam", ngayVaoLam));
                     cmd.ExecuteNonQuery();
                     result = true;
                 }
             }
-            catch (Exception) { result = false; }
-            finally { DataProvider.DongKetNoi(conn); }
+            catch (Exception) 
+            { 
+                result = false; 
+            }
+            finally 
+            { 
+                DataProvider.DongKetNoi(conn); 
+            }
             return result;
         }
+
+        // Cập nhật thông tin nhân viên
         public bool CapNhatNhanVien(string maNV, string tenNV, string sdt_plain, string diaChi_plain, DateTime ngayVaoLam)
         {
             OracleConnection conn = DataProvider.MoKetNoi();
             if (conn == null) return false;
             bool result = false;
             try
-            {
+            {// Gọi thủ tục lưu trữ để cập nhật nhân viên
                 using (OracleCommand cmd = new OracleCommand("SP_NhanVien_Update", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -68,19 +77,25 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
                     result = true;
                 }
             }
-            catch (Exception) { result = false; }
-            finally { DataProvider.DongKetNoi(conn); }
+            catch (Exception) 
+            { 
+                result = false; 
+            }
+            finally 
+            {
+                DataProvider.DongKetNoi(conn); 
+            }
             return result;
         }
 
-        // --- HAM MOI ---
+        // Xóa nhân viên
         public bool XoaNhanVien(string maNV)
         {
             OracleConnection conn = DataProvider.MoKetNoi();
             if (conn == null) return false;
             bool result = false;
             try
-            {
+            {// Gọi thủ tục lưu trữ để xóa nhân viên
                 using (OracleCommand cmd = new OracleCommand("SP_NhanVien_Delete", conn))
                 {
                     cmd.CommandType = CommandType.StoredProcedure;
@@ -89,8 +104,14 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
                     result = true;
                 }
             }
-            catch (Exception) { result = false; } // Loi khoa ngoai tu TAIKHOAN/HOADON
-            finally { DataProvider.DongKetNoi(conn); }
+            catch (Exception) 
+            { 
+                result = false;
+            } // Loi khoa ngoai tu TAIKHOAN/HOADON
+            finally 
+            {
+                DataProvider.DongKetNoi(conn);
+            }
             return result;
         }
     }

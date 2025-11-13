@@ -8,10 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using QuanLyTraSua.QuanLyTraSua_BLL;
+using QuanLyTraSua.QuanLyTraSua_BLL; // Sử dụng BLL
 
 namespace QuanLyTraSua.QuanLyTraSua_GUI
-{
+{ 
+    // Form đăng ký tài khoản mới
     public partial class frmDangKy : Form
     {
         private TaiKhoan_BLL taiKhoanBLL = new TaiKhoan_BLL();
@@ -21,6 +22,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             InitializeComponent();
         }
 
+        // Xử lý sự kiện nút Đăng Ký
         private void btnDangKy_Click(object sender, EventArgs e)
         {
             if (txtMatKhau.Text != txtXacNhanMK.Text)
@@ -43,6 +45,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Xử lý sự kiện nút Hủy
         private void btnHuy_Click(object sender, EventArgs e)
         {
             this.Close();

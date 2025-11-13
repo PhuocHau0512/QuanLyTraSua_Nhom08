@@ -4,17 +4,22 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-using Oracle.ManagedDataAccess.Client;
+using Oracle.ManagedDataAccess.Client; // Thư viện Oracle
 using System.Data;
 
 namespace QuanLyTraSua.QuanLyTraSua_DAO
 {
+    // DAO dành cho các chức năng quản trị hệ thống
     public class Admin_DAO
     {
+        // Thống kê dung lượng tablespace
         public DataTable GetTablespaceUsage()
         {
-            OracleConnection conn = DataProvider.MoKetNoi();
-            if (conn == null) return null;
+            OracleConnection conn = DataProvider.MoKetNoi(); 
+
+            if (conn == null) return null; 
+
+            // Truy vấn thống kê dung lượng tablespace
             string query = @"
                 SELECT 
                     fs.tablespace_name AS ""Tablespace"",
@@ -28,74 +33,121 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
                      FROM dba_data_files GROUP BY tablespace_name) df
                 WHERE fs.tablespace_name = df.tablespace_name
                   AND fs.tablespace_name = 'TS_QUANLYTRASUA'";
-            DataTable dt = DataProvider.ThucThiTruyVan(query, conn);
-            DataProvider.DongKetNoi(conn);
+
+            DataTable dt = DataProvider.ThucThiTruyVan(query, conn); 
+
+            DataProvider.DongKetNoi(conn); 
+
             return dt;
         }
 
+        // Lấy danh sách phiên làm việc hiện tại
         public DataTable GetActiveSessions()
         {
-            OracleConnection conn = DataProvider.MoKetNoi();
-            if (conn == null) return null;
+            OracleConnection conn = DataProvider.MoKetNoi(); 
+
+            if (conn == null) return null; 
+
+            // Truy vấn lấy danh sách phiên làm việc
             string query = @"
                 SELECT sid AS ""SID"", serial# AS ""Serial"", username AS ""User"", 
                        osuser AS ""OS User"", machine AS ""Máy trạm"", program AS ""Chương trình"",
                        TO_CHAR(logon_time, 'DD/MM/YYYY HH24:MI:SS') AS ""Thời gian""
                 FROM v$session
                 WHERE username IS NOT NULL";
-            DataTable dt = DataProvider.ThucThiTruyVan(query, conn);
+
+            DataTable dt = DataProvider.ThucThiTruyVan(query, conn); 
+
             DataProvider.DongKetNoi(conn);
+
             return dt;
         }
 
+        // Kết thúc phiên làm việc
         public bool KillSession(int sid, int serial)
         {
             OracleConnection conn = DataProvider.MoKetNoi();
-            if (conn == null) return false;
-            bool result = false;
+
+            if (conn == null) return false; 
+
+            bool result = false; // Biến kết quả
+                                 // Thực thi thủ tục lưu trữ để kết thúc phiên làm việc
             try
             {
+                // Sử dụng OracleCommand để gọi thủ tục lưu trữ
                 using (OracleCommand cmd = new OracleCommand("SP_Admin_KillSession", conn))
                 {
+                    // Đặt kiểu lệnh là thủ tục lưu trữ
                     cmd.CommandType = CommandType.StoredProcedure;
+
+                    // Thêm tham số cho thủ tục
                     cmd.Parameters.Add(new OracleParameter("p_sid", sid));
                     cmd.Parameters.Add(new OracleParameter("p_serial", serial));
+
+                    // Thực thi lệnh
                     cmd.ExecuteNonQuery();
                     result = true;
                 }
             }
-            catch (Exception) { result = false; }
-            finally { DataProvider.DongKetNoi(conn); }
+            catch (Exception) 
+            { 
+                result = false; 
+            }
+            finally 
+            { 
+                DataProvider.DongKetNoi(conn); 
+            }
             return result;
         }
 
+        // Lấy danh sách người dùng Oracle
         public DataTable GetOracleUsers()
         {
             OracleConnection conn = DataProvider.MoKetNoi();
+
             if (conn == null) return null;
-            string query = "SELECT USERNAME FROM dba_users WHERE ORACLE_MAINTAINED = 'N' AND USERNAME NOT LIKE 'APEX_%' ORDER BY USERNAME";
+
+            // Truy vấn lấy danh sách người dùng
+            string query = "" +
+                "SELECT USERNAME " +
+                "FROM dba_users " +
+                "WHERE ORACLE_MAINTAINED = 'N' AND USERNAME NOT LIKE 'APEX_%' ORDER BY USERNAME";
+
             DataTable dt = DataProvider.ThucThiTruyVan(query, conn);
+
             DataProvider.DongKetNoi(conn);
+
             return dt;
         }
-
+        // Lấy danh sách vai trò Oracle
         public DataTable GetOracleRoles()
         {
             OracleConnection conn = DataProvider.MoKetNoi();
             if (conn == null) return null;
-            string query = "SELECT ROLE FROM dba_roles WHERE ROLE LIKE 'ROLE_%' ORDER BY ROLE";
+
+            // Truy vấn lấy danh sách vai trò
+            string query = "" +
+                "SELECT ROLE " +
+                "FROM dba_roles " +
+                "WHERE ROLE LIKE 'ROLE_%' ORDER BY ROLE";
+
             DataTable dt = DataProvider.ThucThiTruyVan(query, conn);
+
             DataProvider.DongKetNoi(conn);
+
             return dt;
         }
 
+        // Lấy các vai trò được gán cho người dùng
         public DataTable GetRolesForUser(string username)
         {
             OracleConnection conn = DataProvider.MoKetNoi();
             if (conn == null) return null;
 
-            // SỬA LỖI: Dùng tham số :username
-            string query = "SELECT GRANTED_ROLE FROM dba_role_privs WHERE GRANTEE = :username";
+            // Truy vấn lấy các vai trò được gán cho người dùng
+            string query = "SELECT GRANTED_ROLE " +
+                "FROM dba_role_privs " +
+                "WHERE GRANTEE = :username";
 
             DataTable dataTable = new DataTable();
             try
@@ -111,8 +163,15 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
                     }
                 }
             }
-            catch (Exception) { dataTable = null; }
-            finally { DataProvider.DongKetNoi(conn); }
+
+            catch (Exception) 
+            { 
+                dataTable = null; 
+            }
+            finally 
+            { 
+                DataProvider.DongKetNoi(conn); 
+            }
 
             return dataTable;
         }

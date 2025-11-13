@@ -8,10 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using QuanLyTraSua.QuanLyTraSua_BLL;
+using QuanLyTraSua.QuanLyTraSua_BLL; // Sử dụng BLL
 
 namespace QuanLyTraSua.QuanLyTraSua_GUI
 {
+    // Form phục hồi dữ liệu sản phẩm từ lịch sử thay đổi
     public partial class frmPhucHoiDuLieu : Form
     {
         private SanPham_BLL sanPhamBLL = new SanPham_BLL();
@@ -21,6 +22,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             InitializeComponent();
         }
 
+        // Xử lý sự kiện nút Tìm Kiếm
         private void btnTimKiem_Click(object sender, EventArgs e)
         {
             string maSP = txtMaSP.Text;
@@ -31,10 +33,27 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
 
             try
-            {
-                dgvHistory.DataSource = sanPhamBLL.GetSanPhamHistory(maSP);
-                dgvHistory.Columns["Thời điểm Bắt đầu"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
-                dgvHistory.Columns["Thời điểm Kết thúc"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
+            { 
+                // 1. Lấy dữ liệu vào một biến DataTable tạm
+                DataTable dtHistory = sanPhamBLL.GetSanPhamHistory(maSP);
+
+                // 2. Kiểm tra xem DataTable có dữ liệu (không null VÀ có dòng)
+                if (dtHistory != null && dtHistory.Rows.Count > 0)
+                {
+                    // 3. Nếu CÓ dữ liệu, gán DataSource
+                    dgvHistory.DataSource = dtHistory;
+
+                    // 4. Chỉ định dạng cột KHI BIẾT CHẮC CÓ DỮ LIỆU
+                    dgvHistory.Columns["Thời điểm Bắt đầu"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
+                    dgvHistory.Columns["Thời điểm Kết thúc"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
+                }
+                else
+                {
+                    // 5. Nếu KHÔNG có dữ liệu, gán DataSource là null (để xóa bảng cũ)
+                    dgvHistory.DataSource = null;
+                    MessageBox.Show("Không tìm thấy lịch sử thay đổi nào cho sản phẩm này (trong 1 ngày qua).", "Thông báo");
+                }
+
             }
             catch (Exception ex)
             {
@@ -42,6 +61,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Xử lý sự kiện nút Phục Hồi
         private void btnPhucHoi_Click(object sender, EventArgs e)
         {
             if (dgvHistory.SelectedRows.Count == 0)

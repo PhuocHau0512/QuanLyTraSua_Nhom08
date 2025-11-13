@@ -1,4 +1,4 @@
-﻿using QuanLyTraSua.QuanLyTraSua_BLL;
+﻿using QuanLyTraSua.QuanLyTraSua_BLL; // SỬ DỤNG NAMESPACE BLL ĐỂ TRUY CẬP NhanVien_BLL
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -11,28 +11,29 @@ using System.Windows.Forms;
 
 namespace QuanLyTraSua.QuanLyTraSua_GUI
 {
+    // Form quản lý nhân viên
     public partial class frmNhanVien : Form
     {
-        // Khởi tạo lớp BLL
         private NhanVien_BLL nhanVienBLL = new NhanVien_BLL();
 
         public frmNhanVien()
         {
             InitializeComponent();
         }
-
+         
+        // Xử lý sự kiện khi form load
         private void frmNhanVien_Load(object sender, EventArgs e)
         {
-            // Tải dữ liệu khi form mở lên
             LoadData();
         }
 
+        // Xử lý sự kiện nút Tải Lại
         private void btnTaiLai_Click(object sender, EventArgs e)
-        {
-            // Tải lại dữ liệu
+        { 
             LoadData();
         }
 
+        // Hàm tải dữ liệu nhân viên vào DataGridView
         private void LoadData()
         {
             try
@@ -47,6 +48,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Xử lý sự kiện nút Thêm
         private void btnThem_Click(object sender, EventArgs e)
         {
             try
@@ -84,6 +86,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
+        // Hàm xóa trắng các ô nhập liệu
         private void ClearInputs()
         {
             this.txtMaNV.Text = "";
@@ -97,16 +100,19 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             btnSua.Enabled = false;
             btnXoa.Enabled = false;
         }
+
+        // Xử lý sự kiện nút Làm Mới
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
             ClearInputs();
         }
 
+        // Xử lý sự kiện khi chọn dòng trong DataGridView 
         private void dgvNhanVien_SelectionChanged(object sender, EventArgs e)
         {
             if (dgvNhanVien.SelectedRows.Count == 1)
             {
-                // Hien thi thong tin len cac textbox
+                // Hiển thị dữ liệu lên các ô nhập liệu
                 DataGridViewRow row = dgvNhanVien.SelectedRows[0];
                 txtMaNV.Text = row.Cells["MaNV"].Value.ToString();
                 txtTenNV.Text = row.Cells["TenNV"].Value.ToString();
@@ -114,19 +120,20 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
                 txtDiaChi.Text = row.Cells["DiaChi"].Value.ToString();
                 dtpNgayVaoLam.Value = Convert.ToDateTime(row.Cells["NgayVaoLam"].Value);
 
-                // Khoa chuc nang
-                txtMaNV.Enabled = false; // Khong cho sua MaNV (khoa chinh)
+                // Cho phép sửa và xóa
+                txtMaNV.Enabled = false; // Khóa mã nhân viên
                 btnThem.Enabled = false;
                 btnSua.Enabled = true;
                 btnXoa.Enabled = true;
             }
         }
-        // --- HAM MOI ---
+
+        // Xử lý sự kiện nút Sửa
         private void btnSua_Click(object sender, EventArgs e)
         {
             try
             {
-                string ketQua = nhanVienBLL.CapNhatNhanVien(
+                string ketQua = nhanVienBLL.CapNhatNhanVien( // Gửi plaintext
                     txtMaNV.Text,
                     txtTenNV.Text,
                     txtSDT.Text,
@@ -146,7 +153,7 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             }
         }
 
-        // --- HAM MOI ---
+        // Xử lý sự kiện nút Xóa
         private void btnXoa_Click(object sender, EventArgs e)
         {
             if (MessageBox.Show("Bạn có chắc muốn xóa nhân viên '" + txtTenNV.Text + "' không?",

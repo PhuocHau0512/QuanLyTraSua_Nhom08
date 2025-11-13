@@ -8,10 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-using QuanLyTraSua.QuanLyTraSua_BLL;
+using QuanLyTraSua.QuanLyTraSua_BLL; // Sử dụng BLL
 
 namespace QuanLyTraSua.QuanLyTraSua_GUI
 {
+    // Form Giám Sát Hoạt Động Hệ Thống
     public partial class frmGiamSat : Form
     {
         private Admin_BLL adminBLL = new Admin_BLL();
@@ -21,16 +22,19 @@ namespace QuanLyTraSua.QuanLyTraSua_GUI
             InitializeComponent();
         }
 
+        // Xử lý sự kiện khi form được tải
         private void frmGiamSat_Load(object sender, EventArgs e)
         {
             LoadLogs();
         }
 
+        // Xử lý sự kiện nút Làm Mới
         private void btnLamMoi_Click(object sender, EventArgs e)
         {
             LoadLogs();
         }
 
+        // Hàm tải nhật ký từ BLL và hiển thị lên DataGridView
         private void LoadLogs()
         {
             try
