@@ -13,7 +13,7 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
 {
     public class DataProvider
     {
-        private static string connectionString = "Data Source=localhost:1521/ORCL;User Id=QLTS;Password=qlts;";
+        private static string connectionString = ConfigurationManager.ConnectionStrings["OracleDB"].ConnectionString;
 
         private static void SetSessionContext(OracleConnection conn)
         {
@@ -33,8 +33,9 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
                         cmdVPD.ExecuteNonQuery();
                     }
 
-                    // 2. Set OLS Label (cho QLTS_POLICY)
-                    // (Yêu cầu SYS đã chạy: GRANT EXECUTE ON SA_SESSION TO QLTS;)
+                    // 2. Set OLS Label (CHO QLTS_POLICY)
+                    // VÔ HIỆU HÓA KHỐI NÀY VÌ SQL DÙNG VIEW ĐỂ MÔ PHỎNG OLS
+                    /* 
                     using (OracleCommand cmdOLS = new OracleCommand("SA_SESSION.SET_LABEL", conn))
                     {
                         cmdOLS.CommandType = CommandType.StoredProcedure;
@@ -42,6 +43,7 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
                         cmdOLS.Parameters.Add(new OracleParameter("label", Session.OlsLabel));
                         cmdOLS.ExecuteNonQuery();
                     }
+                    */ // 
                 }
                 catch (Exception)
                 {

@@ -67,11 +67,18 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
             OracleConnection conn = DataProvider.MoKetNoi();
             if (conn == null) return null;
 
-            // OLS Policy (QLTS_POLICY) se tu dong loc
-            // NhanVien (PUB:BH) chi thay TraSua
-            // Admin (INT:KHO,BH) thay ca TraSua va Topping
-            // ** CAP NHAT: Them SoLuongTon **
-            string query = "SELECT MaSP, TenSP, DonGia, SoLuongTon FROM SANPHAM";
+            string query = "";
+            // Dùng View mô phỏng OLS dựa trên quyền đã lưu trong Session
+            if (Session.Quyen == "NhanVien")
+            {
+                // ROLE_NHANVIEN_BANHANG chỉ được xem View PUBLIC
+                query = "SELECT MaSP, TenSP, DonGia, SoLuongTon FROM VW_SANPHAM_NHANVIEN";
+            }
+            else
+            {
+                // Admin (hoặc Quản lý) được xem View đầy đủ
+                query = "SELECT MaSP, TenSP, DonGia, SoLuongTon FROM VW_SANPHAM_QUANLYKHO";
+            }
 
             DataTable dt = DataProvider.ThucThiTruyVan(query, conn);
             DataProvider.DongKetNoi(conn);
@@ -83,9 +90,10 @@ namespace QuanLyTraSua.QuanLyTraSua_DAO
         {
             OracleConnection conn = DataProvider.MoKetNoi();
             if (conn == null) return null;
-            // OLS se tu dong xu ly quyen xem o day
-            // ** CAP NHAT: Them SoLuongTon **
-            string query = "SELECT MaSP, TenSP, DonGia, LoaiSP, SoLuongTon FROM SANPHAM";
+            
+            // Form này chỉ dành cho Admin/Quản lý, nên luôn dùng View đầy đủ
+            string query = "SELECT MaSP, TenSP, DonGia, LoaiSP, SoLuongTon FROM VW_SANPHAM_QUANLYKHO";
+
             DataTable dt = DataProvider.ThucThiTruyVan(query, conn);
             DataProvider.DongKetNoi(conn);
             return dt;
