@@ -96,7 +96,7 @@ INSERT INTO TAIKHOAN (TenTK, MatKhau, MaNV, Quyen) VALUES ('giangdt', '123', 'NV
 INSERT INTO TAIKHOAN (TenTK, MatKhau, MaNV, Quyen) VALUES ('haupl', '123', 'NV007', 'NhanVien');
 INSERT INTO TAIKHOAN (TenTK, MatKhau, MaNV, Quyen) VALUES ('lanmt', '123', 'NV008', 'NhanVien');
 INSERT INTO TAIKHOAN (TenTK, MatKhau, MaNV, Quyen) VALUES ('minhlv', '123', 'NV009', 'NhanVien');
-INSERT INTO TAIKHOAN (TenTK, MatKhau, MaNV, Quyen) VALUES ('vtb', '123', 'NV010', 'NhanVien');
+INSERT INTO TAIKHOAN (TenTK, MatKhau, MaNV, Quyen) VALUES ('vanvantb', '123', 'NV010', 'NhanVien');
 
 /* ----- Chen 10 dong du lieu (SANPHAM) ----- */
 INSERT INTO SANPHAM (MaSP, TenSP, DonGia, LoaiSP) VALUES ('TS001', N'Tra Sua Truyen Thong', 35000, 'TraSua');
