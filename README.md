@@ -159,4 +159,4 @@ Nhóm 8 – Trường Đại học Công Thương TP.HCM
 
 2. Có thể mở rộng sang phiên bản WPF hoặc ASP.NET trong tương lai.
 
-3. Cấu hình tương thích với Oracle 19c trở lên.
+3. Cấu hình tương thích với Oracle 12c trở lên.
