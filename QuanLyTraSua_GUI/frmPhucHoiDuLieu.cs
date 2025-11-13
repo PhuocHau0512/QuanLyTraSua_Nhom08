@@ -1,0 +1,95 @@
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+
+using QuanLyTraSua.QuanLyTraSua_BLL;
+
+namespace QuanLyTraSua.QuanLyTraSua_GUI
+{
+    public partial class frmPhucHoiDuLieu : Form
+    {
+        private SanPham_BLL sanPhamBLL = new SanPham_BLL();
+
+        public frmPhucHoiDuLieu()
+        {
+            InitializeComponent();
+        }
+
+        private void btnTimKiem_Click(object sender, EventArgs e)
+        {
+            string maSP = txtMaSP.Text;
+            if (string.IsNullOrEmpty(maSP))
+            {
+                MessageBox.Show("Vui lòng nhập Mã Sản phẩm.");
+                return;
+            }
+
+            try
+            {
+                dgvHistory.DataSource = sanPhamBLL.GetSanPhamHistory(maSP);
+                dgvHistory.Columns["Thời điểm Bắt đầu"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
+                dgvHistory.Columns["Thời điểm Kết thúc"].DefaultCellStyle.Format = "dd/MM/yyyy HH:mm:ss";
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi tải lịch sử: " + ex.Message);
+            }
+        }
+
+        private void btnPhucHoi_Click(object sender, EventArgs e)
+        {
+            if (dgvHistory.SelectedRows.Count == 0)
+            {
+                MessageBox.Show("Vui lòng chọn một phiên bản (một dòng) trong lịch sử để phục hồi.");
+                return;
+            }
+
+            try
+            {
+                DataGridViewRow selectedRow = dgvHistory.SelectedRows[0];
+
+                // Lấy thời điểm bắt đầu của phiên bản đó
+                // (Đây là thời điểm mà dữ liệu trên dòng đó BẮT ĐẦU có hiệu lực)
+                if (selectedRow.Cells["Thời điểm Bắt đầu"].Value == DBNull.Value)
+                {
+                    MessageBox.Show("Không thể khôi phục phiên bản hiện tại.");
+                    return;
+                }
+
+                DateTime thoiDiemCanPhucHoi = (DateTime)selectedRow.Cells["Thời điểm Bắt đầu"].Value;
+                string maSP = txtMaSP.Text;
+
+                string giaCu = selectedRow.Cells["DonGia"].Value.ToString();
+
+                DialogResult confirm = MessageBox.Show($"Bạn có chắc muốn khôi phục giá của '{maSP}' về {giaCu} (tại thời điểm {thoiDiemCanPhucHoi}) không?",
+                                                      "Xác nhận Phục hồi",
+                                                      MessageBoxButtons.YesNo,
+                                                      MessageBoxIcon.Warning);
+
+                if (confirm == DialogResult.Yes)
+                {
+                    if (sanPhamBLL.RestoreGiaSanPham(maSP, thoiDiemCanPhucHoi))
+                    {
+                        MessageBox.Show("Phục hồi thành công! Vui lòng tải lại lịch sử để xem thay đổi.");
+                        // Tải lại lịch sử để thấy dòng "Cập nhật" mới
+                        btnTimKiem_Click(sender, e);
+                    }
+                    else
+                    {
+                        MessageBox.Show("Phục hồi thất bại.");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show("Lỗi khi phục hồi: " + ex.Message);
+            }
+        }
+    }
+}
